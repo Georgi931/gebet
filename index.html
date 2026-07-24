@@ -3,11 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#101420">
+<meta name="theme-color" content="#101420" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#F2EEE3">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Gebet">
+<meta name="format-detection" content="telephone=no">
+<link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="apple-touch-icon.png">
 <title>Gebet &amp; Dankbarkeit</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,6 +31,8 @@
     --btn-solid-bg:#26323D;
     --btn-solid-ink:#F5EFE1;
     --glow:transparent;
+    --navbg:rgba(242,238,227,0.88);
+    --press:rgba(38,50,61,0.06);
   }
   :root[data-theme="abend"]{
     --bg:#101420;
@@ -40,10 +47,20 @@
     --btn-solid-bg:#EAE3D2;
     --btn-solid-ink:#131827;
     --glow:rgba(201,158,78,0.10);
+    --navbg:rgba(16,20,32,0.88);
+    --press:rgba(234,227,210,0.07);
+  }
+
+  :root{
+    --lesegroesse:19px;
   }
 
   *{box-sizing:border-box;margin:0;padding:0;}
 
+  html{
+    -webkit-text-size-adjust:100%;
+    scroll-behavior:smooth;
+  }
   html,body{
     background:var(--bg);
     color:var(--ink);
@@ -56,6 +73,8 @@
     transition:background 0.7s ease,color 0.7s ease;
     line-height:1.5;
     -webkit-font-smoothing:antialiased;
+    -webkit-tap-highlight-color:transparent;
+    overflow-x:hidden;
   }
   body::before{
     content:"";
@@ -68,42 +87,25 @@
     transition:background 0.7s ease;
   }
 
-  .wrap{
+  /* ---------- Sticky Kopfleiste ---------- */
+  .kopfleiste{
+    position:sticky;
+    top:0;
+    z-index:20;
+    background:var(--navbg);
+    -webkit-backdrop-filter:saturate(160%) blur(14px);
+    backdrop-filter:saturate(160%) blur(14px);
+    border-bottom:1px solid var(--rule);
+    padding-top:env(safe-area-inset-top);
+    transition:background 0.7s ease,border-color 0.7s ease;
+  }
+  .kopfleiste-innen{
     max-width:620px;
     margin:0 auto;
-    padding:calc(24px + env(safe-area-inset-top)) 22px calc(96px + env(safe-area-inset-bottom));
-    position:relative;
-  }
-
-  /* ---------- Kopf ---------- */
-  header{margin-bottom:22px;}
-  .datum{
-    font-size:12px;
-    letter-spacing:0.16em;
-    text-transform:uppercase;
-    color:var(--muted);
-  }
-  h1{
-    font-family:'Cardo',Georgia,serif;
-    font-weight:400;
-    font-size:32px;
-    line-height:1.15;
-    margin-top:6px;
-  }
-  .streak{
-    margin-top:10px;
-    font-size:12px;
-    letter-spacing:0.14em;
-    text-transform:uppercase;
-    color:var(--gold);
-  }
-
-  /* ---------- Tabs ---------- */
-  nav{
+    padding:0 16px;
     display:flex;
-    gap:4px;
-    border-bottom:1px solid var(--rule);
-    margin-bottom:30px;
+    align-items:stretch;
+    gap:2px;
   }
   .tab{
     appearance:none;
@@ -111,54 +113,114 @@
     border:none;
     border-bottom:2px solid transparent;
     margin-bottom:-1px;
-    padding:10px 14px;
+    flex:1;
+    min-height:52px;
+    padding:0 6px;
     font-family:'IBM Plex Sans',sans-serif;
-    font-size:14px;
+    font-size:15px;
     font-weight:500;
     color:var(--muted);
     cursor:pointer;
-    transition:color 0.2s;
+    transition:color 0.2s,background 0.15s;
+    border-radius:6px 6px 0 0;
   }
-  .tab:hover{color:var(--ink);}
+  .tab:active{background:var(--press);}
   .tab[aria-selected="true"]{
     color:var(--ink);
     border-bottom-color:var(--gold);
   }
-  .tab:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:2px;}
+  .tab:focus-visible{outline:2px solid var(--gold);outline-offset:-3px;}
+
+  .schriftgroesse{
+    display:flex;
+    align-items:center;
+    gap:2px;
+    padding-left:6px;
+    margin-left:2px;
+    border-left:1px solid var(--rule);
+  }
+  .groesse-knopf{
+    appearance:none;
+    background:none;
+    border:none;
+    color:var(--muted);
+    font-family:'Cardo',Georgia,serif;
+    line-height:1;
+    width:36px;
+    min-height:52px;
+    cursor:pointer;
+    border-radius:6px;
+    transition:color 0.2s,background 0.15s;
+  }
+  .groesse-knopf:active{background:var(--press);}
+  .groesse-knopf:focus-visible{outline:2px solid var(--gold);outline-offset:-3px;}
+  .groesse-knopf.klein{font-size:15px;}
+  .groesse-knopf.gross{font-size:22px;}
+
+  /* ---------- Inhalt ---------- */
+  .wrap{
+    max-width:620px;
+    margin:0 auto;
+    padding:24px 20px calc(120px + env(safe-area-inset-bottom));
+    position:relative;
+  }
+
+  header.titelblock{margin-bottom:30px;}
+  .datum{
+    font-size:12px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--muted);
+  }
+  h1{
+    font-family:'Cardo',Georgia,serif;
+    font-weight:400;
+    font-size:30px;
+    line-height:1.15;
+    margin-top:6px;
+  }
+  .streak{
+    margin-top:10px;
+    font-size:12px;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--gold);
+  }
 
   #speicher-hinweis{
     display:none;
-    font-size:13px;
+    font-size:14px;
     line-height:1.5;
     color:var(--ink);
     background:var(--field);
     border:1px solid var(--gold);
-    border-radius:6px;
-    padding:10px 14px;
+    border-radius:8px;
+    padding:12px 15px;
     margin:0 0 26px;
   }
 
-  /* ---------- Gebetsteil ---------- */
+  /* ---------- Abschnitte ---------- */
   section{display:none;}
-  section.aktiv{display:block;animation:auftauchen 0.45s ease both;}
+  section.aktiv{display:block;animation:auftauchen 0.4s ease both;}
   @keyframes auftauchen{
     from{opacity:0;transform:translateY(8px);}
     to{opacity:1;transform:none;}
   }
   @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto;}
     section.aktiv{animation:none;}
     body,body::before{transition:none;}
   }
 
   .liturgie-label{
     font-size:11px;
-    letter-spacing:0.2em;
+    letter-spacing:0.18em;
     text-transform:uppercase;
     color:var(--gold);
     display:flex;
     align-items:center;
     gap:12px;
-    margin:36px 0 14px;
+    margin:38px 0 16px;
   }
   .liturgie-label::after{
     content:"";
@@ -171,69 +233,77 @@
   .rubrik{
     font-family:'Cardo',Georgia,serif;
     font-style:italic;
-    font-size:15px;
-    line-height:1.55;
+    font-size:calc(var(--lesegroesse) - 3px);
+    line-height:1.6;
     color:var(--rubrik);
-    max-width:52ch;
-    margin:0 0 12px;
+    margin:0 0 14px;
   }
 
   .gebet{
     font-family:'Cardo',Georgia,serif;
-    font-size:19px;
-    line-height:1.66;
+    font-size:var(--lesegroesse);
+    line-height:1.72;
     white-space:pre-line;
-    max-width:52ch;
-    margin:0 0 16px;
+    margin:0 0 18px;
+    hyphens:auto;
+    -webkit-hyphens:auto;
   }
   .gebet.prosa{white-space:normal;}
 
   .mal{
     font-family:'Cardo',Georgia,serif;
     font-style:italic;
-    font-size:0.82em;
+    font-size:0.8em;
     color:var(--rubrik);
+    white-space:nowrap;
   }
 
   /* ---------- Aufklappbar ---------- */
-  details.extra{margin-top:36px;}
+  details.extra{margin-top:38px;}
   details.extra summary{
     list-style:none;
     cursor:pointer;
     display:flex;
     align-items:center;
     gap:12px;
+    min-height:48px;
     font-size:11px;
-    letter-spacing:0.2em;
+    letter-spacing:0.18em;
     text-transform:uppercase;
     color:var(--gold);
+    border-radius:6px;
+    transition:background 0.15s;
   }
   details.extra summary::-webkit-details-marker{display:none;}
+  details.extra summary:active{background:var(--press);}
   details.extra summary:focus-visible{outline:2px solid var(--gold);outline-offset:3px;}
   details.extra .linie{flex:1;height:1px;background:var(--rule);}
   details.extra .plus::before{
     content:"+";
     font-family:'Cardo',Georgia,serif;
-    font-size:17px;
+    font-size:19px;
     font-style:normal;
   }
   details.extra[open] .plus::before{content:"\2212";}
   details.extra[open] summary{margin-bottom:16px;}
 
   /* ---------- Amen ---------- */
-  .amen-zeile{margin-top:28px;}
+  .amen-zeile{margin-top:34px;}
   .amen{
     appearance:none;
+    width:100%;
     background:none;
     border:1px solid var(--gold);
+    border-radius:8px;
     color:var(--gold);
     font-family:'Cardo',Georgia,serif;
-    font-size:19px;
-    padding:10px 34px;
+    font-size:21px;
+    min-height:56px;
+    padding:12px;
     cursor:pointer;
     transition:background 0.25s,color 0.25s;
   }
-  .amen:hover{background:var(--glow);}
+  .amen:active{background:var(--press);}
   .amen:focus-visible{outline:2px solid var(--gold);outline-offset:3px;}
   .amen[data-done="true"]{
     background:var(--gold);
@@ -241,117 +311,161 @@
   }
   .amen-hinweis{
     display:block;
-    margin-top:8px;
-    font-size:12px;
+    margin-top:10px;
+    font-size:13px;
     color:var(--muted);
+    text-align:center;
   }
 
-  /* ---------- Dankbarkeit ---------- */
+  /* ---------- Eingaben ---------- */
   .feld{
     width:100%;
     background:var(--field);
-    border:none;
-    border-bottom:1px solid var(--rule);
-    padding:11px 12px;
+    border:1px solid var(--rule);
+    padding:14px 14px;
     font-family:'IBM Plex Sans',sans-serif;
     font-size:16px;
     color:var(--ink);
     margin-bottom:12px;
-    border-radius:4px 4px 0 0;
+    border-radius:8px;
     transition:border-color 0.2s;
   }
-  .feld:focus{outline:none;border-bottom-color:var(--gold);}
-  textarea.feld{min-height:120px;resize:vertical;line-height:1.55;}
-  .feld::placeholder{color:var(--muted);opacity:0.75;}
+  .feld:focus{outline:none;border-color:var(--gold);}
+  textarea.feld{min-height:140px;resize:vertical;line-height:1.6;}
+  .feld::placeholder{color:var(--muted);opacity:0.8;}
 
   .speichern{
     appearance:none;
+    width:100%;
     border:none;
     background:var(--btn-solid-bg);
     color:var(--btn-solid-ink);
     font-family:'IBM Plex Sans',sans-serif;
-    font-size:14px;
+    font-size:16px;
     font-weight:600;
-    padding:11px 26px;
-    border-radius:4px;
+    min-height:52px;
+    padding:14px;
+    border-radius:8px;
     cursor:pointer;
     margin-top:6px;
   }
   .speichern:focus-visible{outline:2px solid var(--gold);outline-offset:3px;}
-  .speichern:active{transform:translateY(1px);}
+  .speichern:active{opacity:0.85;}
 
   /* ---------- Verlauf ---------- */
   .eintrag{
     border-top:1px solid var(--rule);
-    padding:20px 0;
+    padding:22px 0;
   }
   .eintrag:first-child{border-top:none;padding-top:0;}
   .eintrag-datum{
     font-size:11px;
-    letter-spacing:0.16em;
+    letter-spacing:0.14em;
     text-transform:uppercase;
     color:var(--muted);
     margin-bottom:8px;
   }
   .eintrag-status{
-    font-size:12px;
+    font-size:13px;
     color:var(--gold);
     margin-bottom:8px;
   }
   .eintrag-liste{
     font-family:'Cardo',Georgia,serif;
-    font-size:17px;
-    line-height:1.6;
+    font-size:calc(var(--lesegroesse) - 2px);
+    line-height:1.65;
     list-style:none;
   }
+  .eintrag-liste li{padding-left:1.1em;text-indent:-1.1em;}
   .eintrag-liste li::before{content:"\00b7\00a0\00a0";color:var(--gold);}
   .eintrag-reflexion{
     font-family:'Cardo',Georgia,serif;
     font-style:italic;
-    font-size:17px;
-    line-height:1.6;
-    margin-top:6px;
+    font-size:calc(var(--lesegroesse) - 2px);
+    line-height:1.65;
+    margin-top:8px;
   }
   .leer{
     font-family:'Cardo',Georgia,serif;
-    font-size:18px;
+    font-size:var(--lesegroesse);
     color:var(--muted);
     margin-top:8px;
   }
+
+  /* ---------- Nach oben ---------- */
+  #hoch{
+    position:fixed;
+    right:16px;
+    bottom:calc(20px + env(safe-area-inset-bottom));
+    z-index:15;
+    width:48px;height:48px;
+    border-radius:50%;
+    border:1px solid var(--rule);
+    background:var(--navbg);
+    -webkit-backdrop-filter:blur(14px);
+    backdrop-filter:blur(14px);
+    color:var(--ink);
+    font-size:19px;
+    line-height:1;
+    cursor:pointer;
+    opacity:0;
+    pointer-events:none;
+    transform:translateY(10px);
+    transition:opacity 0.25s,transform 0.25s;
+  }
+  #hoch.sichtbar{opacity:1;pointer-events:auto;transform:none;}
+  #hoch:active{background:var(--press);}
 
   /* ---------- Toast ---------- */
   #toast{
     position:fixed;
     left:50%;
-    bottom:calc(28px + env(safe-area-inset-bottom));
+    bottom:calc(80px + env(safe-area-inset-bottom));
+    z-index:30;
     transform:translateX(-50%) translateY(16px);
     background:var(--btn-solid-bg);
     color:var(--btn-solid-ink);
-    font-size:13px;
+    font-size:14px;
     font-weight:500;
-    padding:9px 20px;
+    padding:11px 22px;
     border-radius:999px;
     opacity:0;
     pointer-events:none;
     transition:opacity 0.3s,transform 0.3s;
+    max-width:calc(100vw - 40px);
+    text-align:center;
   }
   #toast.sichtbar{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  /* ---------- Kleine Geraete ---------- */
+  @media (max-width:360px){
+    .tab{font-size:14px;padding:0 3px;}
+    h1{font-size:26px;}
+    .wrap{padding-left:16px;padding-right:16px;}
+  }
 </style>
 </head>
 <body>
+
+<div class="kopfleiste">
+  <div class="kopfleiste-innen" role="tablist" aria-label="Bereiche">
+    <button class="tab" id="tab-morgen" role="tab" aria-selected="true">Morgen</button>
+    <button class="tab" id="tab-abend" role="tab" aria-selected="false">Abend</button>
+    <button class="tab" id="tab-verlauf" role="tab" aria-selected="false">Verlauf</button>
+    <div class="schriftgroesse">
+      <button class="groesse-knopf klein" id="kleiner" aria-label="Schrift kleiner">A</button>
+      <button class="groesse-knopf gross" id="groesser" aria-label="Schrift gr&ouml;&szlig;er">A</button>
+    </div>
+  </div>
+</div>
+
 <div class="wrap">
 
-  <header>
+  <header class="titelblock">
     <div class="datum" id="datum"></div>
     <h1 id="titel">Gebete am Morgen</h1>
     <div class="streak" id="streak"></div>
   </header>
-
-  <nav role="tablist" aria-label="Bereiche">
-    <button class="tab" id="tab-morgen" role="tab" aria-selected="true">Morgen</button>
-    <button class="tab" id="tab-abend" role="tab" aria-selected="false">Abend</button>
-    <button class="tab" id="tab-verlauf" role="tab" aria-selected="false">Verlauf</button>
-  </nav>
 
   <p id="speicher-hinweis">Der lokale Speicher ist nicht verf&uuml;gbar, z.B. im privaten Modus. Eintr&auml;ge bleiben nur f&uuml;r diese Sitzung erhalten.</p>
 
@@ -407,9 +521,9 @@ sondern erl&ouml;se uns von dem B&ouml;sen.</p>
     </div>
 
     <div class="liturgie-label">Dankbarkeit &middot; drei Dinge</div>
-    <input class="feld" id="dank-1" type="text" placeholder="Erstens &hellip;" maxlength="240">
-    <input class="feld" id="dank-2" type="text" placeholder="Zweitens &hellip;" maxlength="240">
-    <input class="feld" id="dank-3" type="text" placeholder="Drittens &hellip;" maxlength="240">
+    <input class="feld" id="dank-1" type="text" placeholder="Erstens &hellip;" maxlength="240" enterkeyhint="next" autocapitalize="sentences">
+    <input class="feld" id="dank-2" type="text" placeholder="Zweitens &hellip;" maxlength="240" enterkeyhint="next" autocapitalize="sentences">
+    <input class="feld" id="dank-3" type="text" placeholder="Drittens &hellip;" maxlength="240" enterkeyhint="done" autocapitalize="sentences">
     <button class="speichern" id="speichern-morgen">Speichern</button>
   </section>
 
@@ -459,7 +573,7 @@ sondern erl&ouml;se uns von dem B&ouml;sen.</p>
 
     <div class="liturgie-label">R&uuml;ckblick</div>
     <p class="rubrik">Noch bevor du dich niederlegst, geh den Tag durch: Danke Gott zuerst, dass du diesen Tag lebendig und gesund durchgestanden hast. Geh dann die Stunden des Tages durch, vom Aufwachen bis jetzt, deine Taten, Worte und Gedanken. Und das Gute, das du heute getan hast, betrachte nicht als dein eigen.</p>
-    <textarea class="feld" id="reflexion" placeholder="Dein R&uuml;ckblick auf den Tag &hellip;" maxlength="1200"></textarea>
+    <textarea class="feld" id="reflexion" placeholder="Dein R&uuml;ckblick auf den Tag &hellip;" maxlength="1200" autocapitalize="sentences"></textarea>
     <button class="speichern" id="speichern-abend">Speichern</button>
   </section>
 
@@ -470,13 +584,16 @@ sondern erl&ouml;se uns von dem B&ouml;sen.</p>
   </section>
 </div>
 
-<div id="toast" role="status"></div>
+<button id="hoch" aria-label="Nach oben">&#8593;</button>
+<div id="toast" role="status" aria-live="polite"></div>
 
 <script>
 (function(){
   "use strict";
 
   var STORAGE_KEY = "gebet-dankbarkeit-v1";
+  var GROESSE_KEY = "gebet-lesegroesse";
+  var MIN_GROESSE = 17, MAX_GROESSE = 25, STANDARD_GROESSE = 19;
   var daten = { days: {} };
 
   /* ---------- Hilfen ---------- */
@@ -504,7 +621,7 @@ sondern erl&ouml;se uns von dem B&ouml;sen.</p>
     return !!(tag.morgen || tag.abend || dank || refl);
   }
 
-  /* ---------- Speicher (localStorage) ---------- */
+  /* ---------- Speicher ---------- */
   function speicherVerfuegbar(){
     try{
       var t = "__gebet_test__";
@@ -523,7 +640,7 @@ sondern erl&ouml;se uns von dem B&ouml;sen.</p>
         var geparst = JSON.parse(roh);
         if(geparst && typeof geparst === "object" && geparst.days) daten = geparst;
       }
-    }catch(e){ /* defekte oder fehlende Daten: frisch starten */ }
+    }catch(e){ /* fehlende oder defekte Daten: frisch starten */ }
   }
   function speichereDaten(){
     try{
@@ -535,6 +652,26 @@ sondern erl&ouml;se uns von dem B&ouml;sen.</p>
       zeigeSpeicherProblem(true);
       return false;
     }
+  }
+
+  /* ---------- Schriftgroesse ---------- */
+  var aktuelleGroesse = STANDARD_GROESSE;
+  function setzeGroesse(px, sichern){
+    aktuelleGroesse = Math.min(MAX_GROESSE, Math.max(MIN_GROESSE, px));
+    document.documentElement.style.setProperty("--lesegroesse", aktuelleGroesse + "px");
+    document.getElementById("kleiner").disabled = (aktuelleGroesse <= MIN_GROESSE);
+    document.getElementById("groesser").disabled = (aktuelleGroesse >= MAX_GROESSE);
+    if(sichern){
+      try{ localStorage.setItem(GROESSE_KEY, String(aktuelleGroesse)); }catch(e){}
+    }
+  }
+  function ladeGroesse(){
+    var g = STANDARD_GROESSE;
+    try{
+      var roh = parseInt(localStorage.getItem(GROESSE_KEY), 10);
+      if(!isNaN(roh)) g = roh;
+    }catch(e){}
+    setzeGroesse(g, false);
   }
 
   /* ---------- Streak ---------- */
@@ -573,7 +710,14 @@ sondern erl&ouml;se uns von dem B&ouml;sen.</p>
     abend:   { tab: "tab-abend",   sektion: "sektion-abend",   titel: "Gebete am Abend",  theme: "abend"  },
     verlauf: { tab: "tab-verlauf", sektion: "sektion-verlauf", titel: "Verlauf",          theme: null     }
   };
-  function zeigeTab(name){
+  function setzeThemeFarbe(){
+    var dunkel = document.documentElement.getAttribute("data-theme") === "abend";
+    var metas = document.querySelectorAll('meta[name="theme-color"]');
+    for(var i = 0; i < metas.length; i++){
+      metas[i].setAttribute("content", dunkel ? "#101420" : "#F2EEE3");
+    }
+  }
+  function zeigeTab(name, scrollen){
     Object.keys(tabs).forEach(function(k){
       var aktiv = (k === name);
       document.getElementById(tabs[k].tab).setAttribute("aria-selected", aktiv ? "true" : "false");
@@ -582,8 +726,10 @@ sondern erl&ouml;se uns von dem B&ouml;sen.</p>
     document.getElementById("titel").textContent = tabs[name].titel;
     if(tabs[name].theme){
       document.documentElement.setAttribute("data-theme", tabs[name].theme);
+      setzeThemeFarbe();
     }
     if(name === "verlauf") zeigeVerlauf();
+    if(scrollen) window.scrollTo(0, 0);
   }
 
   /* ---------- Amen ---------- */
@@ -601,6 +747,7 @@ sondern erl&ouml;se uns von dem B&ouml;sen.</p>
       tag[feldName] = !tag[feldName];
       setzeAmen(knopfId, hinweisId, tag[feldName], standardHinweis);
       zeigeStreak();
+      if(navigator.vibrate) { try{ navigator.vibrate(12); }catch(e){} }
       if(!speichereDaten()) toast("Speichern fehlgeschlagen");
     });
   }
@@ -614,16 +761,32 @@ sondern erl&ouml;se uns von dem B&ouml;sen.</p>
         document.getElementById("dank-2").value.trim(),
         document.getElementById("dank-3").value.trim()
       ];
+      document.activeElement && document.activeElement.blur();
       zeigeStreak();
-      if(speichereDaten()) toast("Gespeichert");
-      else toast("Speichern fehlgeschlagen");
+      toast(speichereDaten() ? "Gespeichert" : "Speichern fehlgeschlagen");
     });
     document.getElementById("speichern-abend").addEventListener("click", function(){
       var tag = holeTag(tagKey());
       tag.reflexion = document.getElementById("reflexion").value.trim();
+      document.activeElement && document.activeElement.blur();
       zeigeStreak();
-      if(speichereDaten()) toast("Gespeichert");
-      else toast("Speichern fehlgeschlagen");
+      toast(speichereDaten() ? "Gespeichert" : "Speichern fehlgeschlagen");
+    });
+
+    /* Enter springt zum naechsten Dankbarkeitsfeld */
+    ["dank-1","dank-2"].forEach(function(id, i){
+      document.getElementById(id).addEventListener("keydown", function(e){
+        if(e.key === "Enter"){
+          e.preventDefault();
+          document.getElementById("dank-" + (i + 2)).focus();
+        }
+      });
+    });
+    document.getElementById("dank-3").addEventListener("keydown", function(e){
+      if(e.key === "Enter"){
+        e.preventDefault();
+        document.getElementById("speichern-morgen").click();
+      }
     });
   }
 
@@ -689,7 +852,39 @@ sondern erl&ouml;se uns von dem B&ouml;sen.</p>
     });
   }
 
+  /* ---------- Nach oben ---------- */
+  function bindeHoch(){
+    var knopf = document.getElementById("hoch");
+    knopf.addEventListener("click", function(){ window.scrollTo({top:0, behavior:"smooth"}); });
+    var laeuft = false;
+    window.addEventListener("scroll", function(){
+      if(laeuft) return;
+      laeuft = true;
+      window.requestAnimationFrame(function(){
+        knopf.classList.toggle("sichtbar", window.scrollY > 500);
+        laeuft = false;
+      });
+    }, {passive:true});
+  }
+
+  /* ---------- Tageswechsel bei Rueckkehr ---------- */
+  var geladenerTag = tagKey();
+  function pruefeTageswechsel(){
+    if(document.visibilityState !== "visible") return;
+    if(tagKey() !== geladenerTag){
+      geladenerTag = tagKey();
+      ladeDaten();
+      setzeDatum();
+      fuelleHeute();
+      zeigeStreak();
+    }
+  }
+
   /* ---------- Start ---------- */
+  function setzeDatum(){
+    document.getElementById("datum").textContent =
+      new Date().toLocaleDateString("de-DE", { weekday:"long", day:"numeric", month:"long", year:"numeric" });
+  }
   function fuelleHeute(){
     var tag = holeTag(tagKey());
     setzeAmen("amen-morgen", "amen-morgen-hinweis", tag.morgen, "Schlie\u00dft das Morgengebet ab");
@@ -701,20 +896,25 @@ sondern erl&ouml;se uns von dem B&ouml;sen.</p>
   }
 
   function init(){
-    var jetzt = new Date();
-    document.getElementById("datum").textContent =
-      jetzt.toLocaleDateString("de-DE", { weekday:"long", day:"numeric", month:"long", year:"numeric" });
+    setzeDatum();
+    ladeGroesse();
 
-    var startTab = jetzt.getHours() < 15 ? "morgen" : "abend";
-    zeigeTab(startTab);
+    var stunde = new Date().getHours();
+    zeigeTab((stunde >= 4 && stunde < 15) ? "morgen" : "abend", false);
 
-    document.getElementById("tab-morgen").addEventListener("click", function(){ zeigeTab("morgen"); });
-    document.getElementById("tab-abend").addEventListener("click", function(){ zeigeTab("abend"); });
-    document.getElementById("tab-verlauf").addEventListener("click", function(){ zeigeTab("verlauf"); });
+    document.getElementById("tab-morgen").addEventListener("click", function(){ zeigeTab("morgen", true); });
+    document.getElementById("tab-abend").addEventListener("click", function(){ zeigeTab("abend", true); });
+    document.getElementById("tab-verlauf").addEventListener("click", function(){ zeigeTab("verlauf", true); });
+
+    document.getElementById("kleiner").addEventListener("click", function(){ setzeGroesse(aktuelleGroesse - 1, true); });
+    document.getElementById("groesser").addEventListener("click", function(){ setzeGroesse(aktuelleGroesse + 1, true); });
 
     bindeAmen("amen-morgen", "amen-morgen-hinweis", "morgen", "Schlie\u00dft das Morgengebet ab");
     bindeAmen("amen-abend", "amen-abend-hinweis", "abend", "Schlie\u00dft das Abendgebet ab");
     bindeSpeichern();
+    bindeHoch();
+
+    document.addEventListener("visibilitychange", pruefeTageswechsel);
 
     if(!speicherVerfuegbar()) zeigeSpeicherProblem(true);
     ladeDaten();
