@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="morgen">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#101420">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Gebet">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>Gebet &amp; Dankbarkeit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cardo:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root[data-theme="morgen"]{
+    --bg:#F2EEE3;
+    --grad-a:#E7E9E6;
+    --grad-b:#F5EFE1;
+    --ink:#26323D;
+    --muted:#6E7681;
+    --gold:#A9822F;
+    --rubrik:#A4552F;
+    --rule:#D9D2C1;
+    --field:#FBF8F0;
+    --btn-solid-bg:#26323D;
+    --btn-solid-ink:#F5EFE1;
+    --glow:transparent;
+  }
+  :root[data-theme="abend"]{
+    --bg:#101420;
+    --grad-a:#0D111B;
+    --grad-b:#131827;
+    --ink:#EAE3D2;
+    --muted:#8E94A6;
+    --gold:#C99E4E;
+    --rubrik:#C9814E;
+    --rule:#2B3142;
+    --field:#181D2C;
+    --btn-solid-bg:#EAE3D2;
+    --btn-solid-ink:#131827;
+    --glow:rgba(201,158,78,0.10);
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0;}
+
+  html,body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'IBM Plex Sans',system-ui,-apple-system,sans-serif;
+    min-height:100%;
+  }
+  body{
+    background:linear-gradient(180deg,var(--grad-a) 0%,var(--grad-b) 46%,var(--bg) 100%);
+    background-attachment:fixed;
+    transition:background 0.7s ease,color 0.7s ease;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  body::before{
+    content:"";
+    position:fixed;
+    top:-140px;left:50%;
+    width:520px;height:340px;
+    transform:translateX(-50%);
+    background:radial-gradient(ellipse at center,var(--glow) 0%,transparent 68%);
+    pointer-events:none;
+    transition:background 0.7s ease;
+  }
+
+  .wrap{
+    max-width:620px;
+    margin:0 auto;
+    padding:calc(24px + env(safe-area-inset-top)) 22px calc(96px + env(safe-area-inset-bottom));
+    position:relative;
+  }
+
+  /* ---------- Kopf ---------- */
+  header{margin-bottom:22px;}
+  .datum{
+    font-size:12px;
+    letter-spacing:0.16em;
+    text-transform:uppercase;
+    color:var(--muted);
+  }
+  h1{
+    font-family:'Cardo',Georgia,serif;
+    font-weight:400;
+    font-size:32px;
+    line-height:1.15;
+    margin-top:6px;
+  }
+  .streak{
+    margin-top:10px;
+    font-size:12px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--gold);
+  }
+
+  /* ---------- Tabs ---------- */
+  nav{
+    display:flex;
+    gap:4px;
+    border-bottom:1px solid var(--rule);
+    margin-bottom:30px;
+  }
+  .tab{
+    appearance:none;
+    background:none;
+    border:none;
+    border-bottom:2px solid transparent;
+    margin-bottom:-1px;
+    padding:10px 14px;
+    font-family:'IBM Plex Sans',sans-serif;
+    font-size:14px;
+    font-weight:500;
+    color:var(--muted);
+    cursor:pointer;
+    transition:color 0.2s;
+  }
+  .tab:hover{color:var(--ink);}
+  .tab[aria-selected="true"]{
+    color:var(--ink);
+    border-bottom-color:var(--gold);
+  }
+  .tab:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:2px;}
+
+  #speicher-hinweis{
+    display:none;
+    font-size:13px;
+    line-height:1.5;
+    color:var(--ink);
+    background:var(--field);
+    border:1px solid var(--gold);
+    border-radius:6px;
+    padding:10px 14px;
+    margin:0 0 26px;
+  }
+
+  /* ---------- Gebetsteil ---------- */
+  section{display:none;}
+  section.aktiv{display:block;animation:auftauchen 0.45s ease both;}
+  @keyframes auftauchen{
+    from{opacity:0;transform:translateY(8px);}
+    to{opacity:1;transform:none;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    section.aktiv{animation:none;}
+    body,body::before{transition:none;}
+  }
+
+  .liturgie-label{
+    font-size:11px;
+    letter-spacing:0.2em;
+    text-transform:uppercase;
+    color:var(--gold);
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin:36px 0 14px;
+  }
+  .liturgie-label::after{
+    content:"";
+    flex:1;
+    height:1px;
+    background:var(--rule);
+  }
+  .liturgie-label:first-child{margin-top:0;}
+
+  .rubrik{
+    font-family:'Cardo',Georgia,serif;
+    font-style:italic;
+    font-size:15px;
+    line-height:1.55;
+    color:var(--rubrik);
+    max-width:52ch;
+    margin:0 0 12px;
+  }
+
+  .gebet{
+    font-family:'Cardo',Georgia,serif;
+    font-size:19px;
+    line-height:1.66;
+    white-space:pre-line;
+    max-width:52ch;
+    margin:0 0 16px;
+  }
+  .gebet.prosa{white-space:normal;}
+
+  .mal{
+    font-family:'Cardo',Georgia,serif;
+    font-style:italic;
+    font-size:0.82em;
+    color:var(--rubrik);
+  }
+
+  /* ---------- Aufklappbar ---------- */
+  details.extra{margin-top:36px;}
+  details.extra summary{
+    list-style:none;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    font-size:11px;
+    letter-spacing:0.2em;
+    text-transform:uppercase;
+    color:var(--gold);
+  }
+  details.extra summary::-webkit-details-marker{display:none;}
+  details.extra summary:focus-visible{outline:2px solid var(--gold);outline-offset:3px;}
+  details.extra .linie{flex:1;height:1px;background:var(--rule);}
+  details.extra .plus::before{
+    content:"+";
+    font-family:'Cardo',Georgia,serif;
+    font-size:17px;
+    font-style:normal;
+  }
+  details.extra[open] .plus::before{content:"\2212";}
+  details.extra[open] summary{margin-bottom:16px;}
+
+  /* ---------- Amen ---------- */
+  .amen-zeile{margin-top:28px;}
+  .amen{
+    appearance:none;
+    background:none;
+    border:1px solid var(--gold);
+    color:var(--gold);
+    font-family:'Cardo',Georgia,serif;
+    font-size:19px;
+    padding:10px 34px;
+    cursor:pointer;
+    transition:background 0.25s,color 0.25s;
+  }
+  .amen:hover{background:var(--glow);}
+  .amen:focus-visible{outline:2px solid var(--gold);outline-offset:3px;}
+  .amen[data-done="true"]{
+    background:var(--gold);
+    color:var(--bg);
+  }
+  .amen-hinweis{
+    display:block;
+    margin-top:8px;
+    font-size:12px;
+    color:var(--muted);
+  }
+
+  /* ---------- Dankbarkeit ---------- */
+  .feld{
+    width:100%;
+    background:var(--field);
+    border:none;
+    border-bottom:1px solid var(--rule);
+    padding:11px 12px;
+    font-family:'IBM Plex Sans',sans-serif;
+    font-size:16px;
+    color:var(--ink);
+    margin-bottom:12px;
+    border-radius:4px 4px 0 0;
+    transition:border-color 0.2s;
+  }
+  .feld:focus{outline:none;border-bottom-color:var(--gold);}
+  textarea.feld{min-height:120px;resize:vertical;line-height:1.55;}
+  .feld::placeholder{color:var(--muted);opacity:0.75;}
+
+  .speichern{
+    appearance:none;
+    border:none;
+    background:var(--btn-solid-bg);
+    color:var(--btn-solid-ink);
+    font-family:'IBM Plex Sans',sans-serif;
+    font-size:14px;
+    font-weight:600;
+    padding:11px 26px;
+    border-radius:4px;
+    cursor:pointer;
+    margin-top:6px;
+  }
+  .speichern:focus-visible{outline:2px solid var(--gold);outline-offset:3px;}
+  .speichern:active{transform:translateY(1px);}
+
+  /* ---------- Verlauf ---------- */
+  .eintrag{
+    border-top:1px solid var(--rule);
+    padding:20px 0;
+  }
+  .eintrag:first-child{border-top:none;padding-top:0;}
+  .eintrag-datum{
+    font-size:11px;
+    letter-spacing:0.16em;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin-bottom:8px;
+  }
+  .eintrag-status{
+    font-size:12px;
+    color:var(--gold);
+    margin-bottom:8px;
+  }
+  .eintrag-liste{
+    font-family:'Cardo',Georgia,serif;
+    font-size:17px;
+    line-height:1.6;
+    list-style:none;
+  }
+  .eintrag-liste li::before{content:"\00b7\00a0\00a0";color:var(--gold);}
+  .eintrag-reflexion{
+    font-family:'Cardo',Georgia,serif;
+    font-style:italic;
+    font-size:17px;
+    line-height:1.6;
+    margin-top:6px;
+  }
+  .leer{
+    font-family:'Cardo',Georgia,serif;
+    font-size:18px;
+    color:var(--muted);
+    margin-top:8px;
+  }
+
+  /* ---------- Toast ---------- */
+  #toast{
+    position:fixed;
+    left:50%;
+    bottom:calc(28px + env(safe-area-inset-bottom));
+    transform:translateX(-50%) translateY(16px);
+    background:var(--btn-solid-bg);
+    color:var(--btn-solid-ink);
+    font-size:13px;
+    font-weight:500;
+    padding:9px 20px;
+    border-radius:999px;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity 0.3s,transform 0.3s;
+  }
+  #toast.sichtbar{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="datum" id="datum"></div>
+    <h1 id="titel">Gebete am Morgen</h1>
+    <div class="streak" id="streak"></div>
+  </header>
+
+  <nav role="tablist" aria-label="Bereiche">
+    <button class="tab" id="tab-morgen" role="tab" aria-selected="true">Morgen</button>
+    <button class="tab" id="tab-abend" role="tab" aria-selected="false">Abend</button>
+    <button class="tab" id="tab-verlauf" role="tab" aria-selected="false">Verlauf</button>
+  </nav>
+
+  <p id="speicher-hinweis">Der lokale Speicher ist nicht verf&uuml;gbar, z.B. im privaten Modus. Eintr&auml;ge bleiben nur f&uuml;r diese Sitzung erhalten.</p>
+
+  <!-- ================= MORGEN ================= -->
+  <section id="sektion-morgen" class="aktiv">
+    <div class="liturgie-label">Anfang</div>
+    <p class="rubrik">Wenn du vom Schlaf erwacht bist, richte dich vor allem anderen Tun in Ehrfurcht auf, stelle dich vor den allessehenden Gott und sprich, indem du das Kreuzeszeichen machst:</p>
+    <p class="gebet prosa">Im Namen des Vaters und des Sohnes und des Heiligen Geistes. Amen.</p>
+    <p class="rubrik">Verweile ein wenig, bis deine Gedanken zur Ruhe gekommen sind. Dann mache drei Verbeugungen, indem du das Jesusgebet sprichst:</p>
+    <p class="gebet prosa">Herr Jesus Christus, Sohn Gottes, erbarme Dich meiner, des S&uuml;nders. <span class="mal">(dreimal)</span></p>
+    <p class="gebet prosa">Herr Jesus Christus, Sohn Gottes, auf die F&uuml;rbitten Deiner allreinen Mutter und aller Heiligen, erbarme Dich unser. Amen.</p>
+    <p class="gebet prosa">Ehre Dir, unser Gott, Ehre Dir.</p>
+
+    <div class="liturgie-label">Anfangsgebete</div>
+    <p class="gebet prosa">Himmlischer K&ouml;nig, Tr&ouml;ster, Du Geist der Wahrheit, &uuml;berall Gegenw&auml;rtiger und alles Erf&uuml;llender, Hort der G&uuml;ter und Spender des Lebens, komm und nimm Wohnung in uns, reinige uns von jedem Makel und errette, Guter, unsere Seelen.</p>
+    <p class="gebet prosa">Heiliger Gott, Heiliger Starker, Heiliger Unsterblicher, erbarme Dich unser. <span class="mal">(dreimal)</span></p>
+    <p class="gebet prosa">Ehre dem Vater und dem Sohn und dem Heiligen Geist, jetzt und immerdar und in die Ewigkeit der Ewigkeit. Amen.</p>
+    <p class="gebet prosa">Allheilige Dreiheit, erbarme Dich unser. Herr, sei gn&auml;dig ob unserer S&uuml;nden. Gebieter, verzeih unsere Gesetzlosigkeiten. Heiliger, suche unsere Schw&auml;chen heim und heile sie um Deines Namens willen.</p>
+    <p class="gebet prosa">Herr, erbarme Dich. <span class="mal">(dreimal)</span></p>
+    <p class="gebet prosa">Ehre dem Vater und dem Sohn und dem Heiligen Geist, jetzt und immerdar und in die Ewigkeit der Ewigkeit. Amen.</p>
+
+    <div class="liturgie-label">Vaterunser</div>
+    <p class="gebet">Vater unser, der Du bist in den Himmeln,
+geheiligt werde Dein Name,
+Dein K&ouml;nigtum komme,
+Dein Wille geschehe,
+wie im Himmel, so auf Erden.
+Unser notwendiges Brot gib uns heute
+und vergib uns unsere Schulden,
+wie auch wir vergeben unseren Schuldigern.
+Und f&uuml;hre uns nicht in Versuchung,
+sondern erl&ouml;se uns von dem B&ouml;sen.</p>
+
+    <div class="liturgie-label">Tropar an die Heilige Dreiheit</div>
+    <p class="gebet prosa">Auferweckt vom Schlaf, fallen wir nieder vor Dir, Du Guter, und rufen Dir den Hymnus der Engel zu, M&auml;chtiger: Heilig, heilig, heilig bist Du, o Gott, durch die Gottesgeb&auml;rerin erbarme Dich unser.</p>
+
+    <div class="liturgie-label">Morgengebet</div>
+    <p class="gebet prosa">Vom Schlaf erstanden, danke ich Dir, heilige Dreiheit, dass Du wegen Deiner gro&szlig;en G&uuml;te und Langmut mir, dem Nachl&auml;ssigen und S&uuml;nder, nicht gez&uuml;rnt, noch mich samt meinen Gesetzlosigkeiten zugrunde gehen lie&szlig;est, sondern in gewohnter Weise Deine Menschenliebe erwiesen und mich, den in Verzagtheit Liegenden, auferweckt hast, damit ich mich fr&uuml;hmorgens erhebe und Deine Macht verherrliche. Erleuchte auch jetzt die Augen meines Verstandes und &ouml;ffne meinen Mund, dass ich mich in Deinen Worten m&uuml;he, Deine Gebote verstehe und Deinen Willen tue, Dir singe im Bekenntnis des Herzens und Deinen allheiligen Namen preise, des Vaters und des Sohnes und des Heiligen Geistes, jetzt und immerdar und in die Ewigkeit der Ewigkeit. Amen.</p>
+
+    <details class="extra">
+      <summary><span>Vor Arbeit &amp; Unterricht</span><i class="linie"></i><i class="plus" aria-hidden="true"></i></summary>
+      <p class="rubrik">Vor Beginn der Arbeit</p>
+      <p class="gebet prosa">Herr Jesus Christus, Du eingeborener Sohn Deines anfanglosen Vaters, Du sagtest mit Deinem allreinen Munde: Ohne mich k&ouml;nnt ihr nichts tun. Herr, mein Herr, was Du gesprochen, bewahre ich gl&auml;ubig in meiner Seele und in meinem Herzen und bete zu Deiner G&uuml;te: Hilf mir S&uuml;nder, diese Arbeit, die ich beginne, durch Dich zu vollbringen, im Namen des Vaters und des Sohnes und des Heiligen Geistes. Amen.</p>
+      <p class="rubrik">Nach beendeter Arbeit</p>
+      <p class="gebet prosa">Die Erf&uuml;llung alles Guten bist Du, mein Christus; erf&uuml;lle mit Freude und Fr&ouml;hlichkeit meine Seele und errette mich als der einzig Menschenliebende. Amen.</p>
+      <p class="rubrik">Vor dem Unterricht</p>
+      <p class="gebet prosa">Allg&uuml;tiger Herr, sende uns die Gnade Deines Heiligen Geistes, der uns geistige F&auml;higkeiten schenkt und sie st&auml;rkt, damit wir der uns erteilten Unterweisung achtsam folgen und so heranwachsen, Dir, unserem Sch&ouml;pfer, zur Ehre, unseren Eltern zur Freude, der Kirche und unserem Land zum Nutzen. Amen.</p>
+    </details>
+
+    <div class="amen-zeile">
+      <button class="amen" id="amen-morgen" data-done="false">Amen</button>
+      <span class="amen-hinweis" id="amen-morgen-hinweis">Schlie&szlig;t das Morgengebet ab</span>
+    </div>
+
+    <div class="liturgie-label">Dankbarkeit &middot; drei Dinge</div>
+    <input class="feld" id="dank-1" type="text" placeholder="Erstens &hellip;" maxlength="240">
+    <input class="feld" id="dank-2" type="text" placeholder="Zweitens &hellip;" maxlength="240">
+    <input class="feld" id="dank-3" type="text" placeholder="Drittens &hellip;" maxlength="240">
+    <button class="speichern" id="speichern-morgen">Speichern</button>
+  </section>
+
+  <!-- ================= ABEND ================= -->
+  <section id="sektion-abend">
+    <div class="liturgie-label">Anfang</div>
+    <p class="gebet prosa">Im Namen des Vaters und des Sohnes und des Heiligen Geistes. Amen.</p>
+    <p class="gebet prosa">Herr Jesus Christus, Sohn Gottes, um der Gebete Deiner allreinen Mutter, unserer seligen und gotttragenden V&auml;ter und aller Heiligen willen, erbarme Dich unser. Amen.</p>
+    <p class="gebet prosa">Ehre Dir, unser Gott, Ehre Dir.</p>
+
+    <div class="liturgie-label">Anfangsgebete</div>
+    <p class="gebet prosa">Himmlischer K&ouml;nig, Tr&ouml;ster, Du Geist der Wahrheit, &uuml;berall Gegenw&auml;rtiger und alles Erf&uuml;llender, Hort der G&uuml;ter und Spender des Lebens, komm und nimm Wohnung in uns, reinige uns von jedem Makel und errette, Guter, unsere Seelen.</p>
+    <p class="gebet prosa">Heiliger Gott, Heiliger Starker, Heiliger Unsterblicher, erbarme Dich unser. <span class="mal">(dreimal)</span></p>
+    <p class="gebet prosa">Ehre dem Vater und dem Sohn und dem Heiligen Geist, jetzt und immerdar und in die Ewigkeit der Ewigkeit. Amen.</p>
+    <p class="gebet prosa">Allheilige Dreiheit, erbarme Dich unser. Herr, sei gn&auml;dig ob unserer S&uuml;nden. Gebieter, verzeih unsere Gesetzlosigkeiten. Heiliger, suche unsere Schw&auml;chen heim und heile sie um Deines Namens willen.</p>
+    <p class="gebet prosa">Herr, erbarme Dich. <span class="mal">(dreimal)</span></p>
+    <p class="gebet prosa">Ehre dem Vater und dem Sohn und dem Heiligen Geist, jetzt und immerdar und in die Ewigkeit der Ewigkeit. Amen.</p>
+
+    <div class="liturgie-label">Vaterunser</div>
+    <p class="gebet">Vater unser, der Du bist in den Himmeln,
+geheiligt werde Dein Name,
+Dein K&ouml;nigtum komme,
+Dein Wille geschehe,
+wie im Himmel, so auf Erden.
+Unser notwendiges Brot gib uns heute
+und vergib uns unsere Schulden,
+wie auch wir vergeben unseren Schuldigern.
+Und f&uuml;hre uns nicht in Versuchung,
+sondern erl&ouml;se uns von dem B&ouml;sen.</p>
+
+    <div class="liturgie-label">Gebet des heiligen Makarios</div>
+    <p class="gebet prosa">Ewiger Gott und K&ouml;nig aller Sch&ouml;pfung, der Du mich gew&uuml;rdigt hast, diese Stunde zu erreichen, vergib mir meine S&uuml;nden, die ich an diesem Tag an Dir begangen habe in Werken, Worten und Gedanken, und reinige, Herr, meine niedrige Seele von jeglicher Befleckung des Fleisches und des Geistes. Und gib mir, Herr, in dieser Nacht in Frieden zu schlafen, damit ich von meinem bescheidenen Lager aufstehe und Deinem allheiligen Namen alle Tage meines Lebens wohlgef&auml;llig bin und die leiblichen und k&ouml;rperlosen Feinde, die mich bek&auml;mpfen, niederwerfe. Und erl&ouml;se mich, Herr, von nichtigen Gedanken, die mich beflecken, und von b&ouml;sen Begierden. Denn Dein ist das K&ouml;nigtum und die Macht und die Herrlichkeit, des Vaters und des Sohnes und des Heiligen Geistes, jetzt und immerdar und in die Ewigkeit der Ewigkeit. Amen.</p>
+
+    <div class="liturgie-label">Um Vergebung</div>
+    <p class="gebet prosa">Erlass, vergib, verzeih, o Gott, unsere Verfehlungen, die absichtlichen und unabsichtlichen, die in Werk und Wort, die bewussten und unbewussten, die in der Nacht und am Tag, die mit Geistkraft und Verstand; alle verzeih uns als Guter und Menschenliebender. Amen.</p>
+
+    <div class="liturgie-label">Beim Hinlegen</div>
+    <p class="rubrik">Sprich, wenn du dich auf dein Bett legst:</p>
+    <p class="gebet prosa">Erleuchte meine Augen, Christus Gott, damit ich niemals einschlafe in den Tod, damit mein Feind niemals sage: &Uuml;berw&auml;ltigt habe ich ihn.</p>
+    <p class="rubrik">Dann bezeichne dich mit dem Kreuzeszeichen und sprich:</p>
+    <p class="gebet prosa">Besch&uuml;tze mich, Herr, durch die Kraft Deines ehrbaren und lebenspendenden Kreuzes, und bewahre mich vor allem &Uuml;bel. Amen.</p>
+
+    <div class="amen-zeile">
+      <button class="amen" id="amen-abend" data-done="false">Amen</button>
+      <span class="amen-hinweis" id="amen-abend-hinweis">Schlie&szlig;t das Abendgebet ab</span>
+    </div>
+
+    <div class="liturgie-label">R&uuml;ckblick</div>
+    <p class="rubrik">Noch bevor du dich niederlegst, geh den Tag durch: Danke Gott zuerst, dass du diesen Tag lebendig und gesund durchgestanden hast. Geh dann die Stunden des Tages durch, vom Aufwachen bis jetzt, deine Taten, Worte und Gedanken. Und das Gute, das du heute getan hast, betrachte nicht als dein eigen.</p>
+    <textarea class="feld" id="reflexion" placeholder="Dein R&uuml;ckblick auf den Tag &hellip;" maxlength="1200"></textarea>
+    <button class="speichern" id="speichern-abend">Speichern</button>
+  </section>
+
+  <!-- ================= VERLAUF ================= -->
+  <section id="sektion-verlauf">
+    <div class="liturgie-label">Vergangene Tage</div>
+    <div id="verlauf-liste"></div>
+  </section>
+</div>
+
+<div id="toast" role="status"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  var STORAGE_KEY = "gebet-dankbarkeit-v1";
+  var daten = { days: {} };
+
+  /* ---------- Hilfen ---------- */
+  function tagKey(d){
+    d = d || new Date();
+    var m = String(d.getMonth() + 1).padStart(2, "0");
+    var t = String(d.getDate()).padStart(2, "0");
+    return d.getFullYear() + "-" + m + "-" + t;
+  }
+  function holeTag(key){
+    if(!daten.days[key]){
+      daten.days[key] = { morgen:false, abend:false, dank:["","",""], reflexion:"" };
+    }
+    var tag = daten.days[key];
+    if(!Array.isArray(tag.dank)) tag.dank = ["","",""];
+    while(tag.dank.length < 3) tag.dank.push("");
+    if(typeof tag.reflexion !== "string") tag.reflexion = "";
+    return tag;
+  }
+  function tagHatInhalt(key){
+    var tag = daten.days[key];
+    if(!tag) return false;
+    var dank = Array.isArray(tag.dank) && tag.dank.some(function(x){ return x && x.trim(); });
+    var refl = typeof tag.reflexion === "string" && tag.reflexion.trim().length > 0;
+    return !!(tag.morgen || tag.abend || dank || refl);
+  }
+
+  /* ---------- Speicher (localStorage) ---------- */
+  function speicherVerfuegbar(){
+    try{
+      var t = "__gebet_test__";
+      localStorage.setItem(t, "1");
+      localStorage.removeItem(t);
+      return true;
+    }catch(e){ return false; }
+  }
+  function zeigeSpeicherProblem(problem){
+    document.getElementById("speicher-hinweis").style.display = problem ? "block" : "none";
+  }
+  function ladeDaten(){
+    try{
+      var roh = localStorage.getItem(STORAGE_KEY);
+      if(roh){
+        var geparst = JSON.parse(roh);
+        if(geparst && typeof geparst === "object" && geparst.days) daten = geparst;
+      }
+    }catch(e){ /* defekte oder fehlende Daten: frisch starten */ }
+  }
+  function speichereDaten(){
+    try{
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(daten));
+      zeigeSpeicherProblem(false);
+      return true;
+    }catch(e){
+      console.error("Speichern fehlgeschlagen:", e);
+      zeigeSpeicherProblem(true);
+      return false;
+    }
+  }
+
+  /* ---------- Streak ---------- */
+  function berechneStreak(){
+    var zaehler = 0;
+    var d = new Date();
+    if(!tagHatInhalt(tagKey(d))) d.setDate(d.getDate() - 1);
+    while(tagHatInhalt(tagKey(d))){
+      zaehler++;
+      d.setDate(d.getDate() - 1);
+      if(zaehler > 3650) break;
+    }
+    return zaehler;
+  }
+  function zeigeStreak(){
+    var n = berechneStreak();
+    var el = document.getElementById("streak");
+    if(n >= 2){ el.textContent = n + " Tage in Folge"; }
+    else if(n === 1){ el.textContent = "1 Tag \u00b7 weiter so"; }
+    else { el.textContent = "Die Serie beginnt heute"; }
+  }
+
+  /* ---------- Toast ---------- */
+  var toastTimer = null;
+  function toast(text){
+    var el = document.getElementById("toast");
+    el.textContent = text;
+    el.classList.add("sichtbar");
+    if(toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ el.classList.remove("sichtbar"); }, 1800);
+  }
+
+  /* ---------- Tabs & Theme ---------- */
+  var tabs = {
+    morgen:  { tab: "tab-morgen",  sektion: "sektion-morgen",  titel: "Gebete am Morgen", theme: "morgen" },
+    abend:   { tab: "tab-abend",   sektion: "sektion-abend",   titel: "Gebete am Abend",  theme: "abend"  },
+    verlauf: { tab: "tab-verlauf", sektion: "sektion-verlauf", titel: "Verlauf",          theme: null     }
+  };
+  function zeigeTab(name){
+    Object.keys(tabs).forEach(function(k){
+      var aktiv = (k === name);
+      document.getElementById(tabs[k].tab).setAttribute("aria-selected", aktiv ? "true" : "false");
+      document.getElementById(tabs[k].sektion).classList.toggle("aktiv", aktiv);
+    });
+    document.getElementById("titel").textContent = tabs[name].titel;
+    if(tabs[name].theme){
+      document.documentElement.setAttribute("data-theme", tabs[name].theme);
+    }
+    if(name === "verlauf") zeigeVerlauf();
+  }
+
+  /* ---------- Amen ---------- */
+  function setzeAmen(knopfId, hinweisId, fertig, standardHinweis){
+    var knopf = document.getElementById(knopfId);
+    knopf.dataset.done = fertig ? "true" : "false";
+    knopf.textContent = fertig ? "Gebetet \u2713" : "Amen";
+    document.getElementById(hinweisId).textContent = fertig
+      ? "Abgeschlossen \u00b7 tippen zum Zur\u00fccksetzen"
+      : standardHinweis;
+  }
+  function bindeAmen(knopfId, hinweisId, feldName, standardHinweis){
+    document.getElementById(knopfId).addEventListener("click", function(){
+      var tag = holeTag(tagKey());
+      tag[feldName] = !tag[feldName];
+      setzeAmen(knopfId, hinweisId, tag[feldName], standardHinweis);
+      zeigeStreak();
+      if(!speichereDaten()) toast("Speichern fehlgeschlagen");
+    });
+  }
+
+  /* ---------- Speichern ---------- */
+  function bindeSpeichern(){
+    document.getElementById("speichern-morgen").addEventListener("click", function(){
+      var tag = holeTag(tagKey());
+      tag.dank = [
+        document.getElementById("dank-1").value.trim(),
+        document.getElementById("dank-2").value.trim(),
+        document.getElementById("dank-3").value.trim()
+      ];
+      zeigeStreak();
+      if(speichereDaten()) toast("Gespeichert");
+      else toast("Speichern fehlgeschlagen");
+    });
+    document.getElementById("speichern-abend").addEventListener("click", function(){
+      var tag = holeTag(tagKey());
+      tag.reflexion = document.getElementById("reflexion").value.trim();
+      zeigeStreak();
+      if(speichereDaten()) toast("Gespeichert");
+      else toast("Speichern fehlgeschlagen");
+    });
+  }
+
+  /* ---------- Verlauf ---------- */
+  function formatiereDatum(key){
+    var teile = key.split("-");
+    var d = new Date(Number(teile[0]), Number(teile[1]) - 1, Number(teile[2]));
+    return d.toLocaleDateString("de-DE", { weekday:"long", day:"numeric", month:"long", year:"numeric" });
+  }
+  function zeigeVerlauf(){
+    var container = document.getElementById("verlauf-liste");
+    container.textContent = "";
+    var keys = Object.keys(daten.days).filter(tagHatInhalt).sort().reverse().slice(0, 90);
+
+    if(keys.length === 0){
+      var leer = document.createElement("p");
+      leer.className = "leer";
+      leer.textContent = "Noch keine Eintr\u00e4ge. Der heutige Tag ist der Anfang.";
+      container.appendChild(leer);
+      return;
+    }
+
+    keys.forEach(function(key){
+      var tag = daten.days[key];
+      var wrap = document.createElement("div");
+      wrap.className = "eintrag";
+
+      var datum = document.createElement("div");
+      datum.className = "eintrag-datum";
+      datum.textContent = formatiereDatum(key);
+      wrap.appendChild(datum);
+
+      var statusTeile = [];
+      if(tag.morgen) statusTeile.push("Morgengebet \u2713");
+      if(tag.abend) statusTeile.push("Abendgebet \u2713");
+      if(statusTeile.length){
+        var status = document.createElement("div");
+        status.className = "eintrag-status";
+        status.textContent = statusTeile.join("   ");
+        wrap.appendChild(status);
+      }
+
+      var dank = (tag.dank || []).filter(function(x){ return x && x.trim(); });
+      if(dank.length){
+        var liste = document.createElement("ul");
+        liste.className = "eintrag-liste";
+        dank.forEach(function(text){
+          var li = document.createElement("li");
+          li.textContent = text;
+          liste.appendChild(li);
+        });
+        wrap.appendChild(liste);
+      }
+
+      if(tag.reflexion && tag.reflexion.trim()){
+        var refl = document.createElement("p");
+        refl.className = "eintrag-reflexion";
+        refl.textContent = tag.reflexion;
+        wrap.appendChild(refl);
+      }
+
+      container.appendChild(wrap);
+    });
+  }
+
+  /* ---------- Start ---------- */
+  function fuelleHeute(){
+    var tag = holeTag(tagKey());
+    setzeAmen("amen-morgen", "amen-morgen-hinweis", tag.morgen, "Schlie\u00dft das Morgengebet ab");
+    setzeAmen("amen-abend", "amen-abend-hinweis", tag.abend, "Schlie\u00dft das Abendgebet ab");
+    document.getElementById("dank-1").value = tag.dank[0] || "";
+    document.getElementById("dank-2").value = tag.dank[1] || "";
+    document.getElementById("dank-3").value = tag.dank[2] || "";
+    document.getElementById("reflexion").value = tag.reflexion || "";
+  }
+
+  function init(){
+    var jetzt = new Date();
+    document.getElementById("datum").textContent =
+      jetzt.toLocaleDateString("de-DE", { weekday:"long", day:"numeric", month:"long", year:"numeric" });
+
+    var startTab = jetzt.getHours() < 15 ? "morgen" : "abend";
+    zeigeTab(startTab);
+
+    document.getElementById("tab-morgen").addEventListener("click", function(){ zeigeTab("morgen"); });
+    document.getElementById("tab-abend").addEventListener("click", function(){ zeigeTab("abend"); });
+    document.getElementById("tab-verlauf").addEventListener("click", function(){ zeigeTab("verlauf"); });
+
+    bindeAmen("amen-morgen", "amen-morgen-hinweis", "morgen", "Schlie\u00dft das Morgengebet ab");
+    bindeAmen("amen-abend", "amen-abend-hinweis", "abend", "Schlie\u00dft das Abendgebet ab");
+    bindeSpeichern();
+
+    if(!speicherVerfuegbar()) zeigeSpeicherProblem(true);
+    ladeDaten();
+    fuelleHeute();
+    zeigeStreak();
+  }
+
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
+})();
+</script>
+</body>
+</html>
