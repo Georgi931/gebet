@@ -1,0 +1,20 @@
+{
+  "name": "Gebet & Dankbarkeit",
+  "short_name": "Gebet",
+  "description": "Orthodoxe Morgen- und Abendgebete mit Dankbarkeit und Rückblick",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#101420",
+  "theme_color": "#101420",
+  "lang": "de",
+  "icons": [
+    {
+      "src": "apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
